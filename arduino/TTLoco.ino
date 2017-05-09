@@ -1,10 +1,10 @@
 #include "Arduino.h"
 #include <Servo.h>
 #include <math.h>
+#include "ttloco.h"
 #include "data.h"
 #include "debug.h"
 #include "EEPROM.h"
-#include "ttloco.h"
 
 /**
  * Első kör:
