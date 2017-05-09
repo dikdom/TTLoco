@@ -10,7 +10,6 @@
 
 #include "Arduino.h"
 #include "EEPROM.h"
-
 #include "ttloco.h"
 
 #define NUM_OF_SERVOS 6
