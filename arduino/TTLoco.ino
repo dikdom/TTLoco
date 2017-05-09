@@ -6,6 +6,7 @@
 #include "debug.h"
 #include "EEPROM.h"
 
+
 /**
  * Első kör:
  *   - csak az alsó kör vezérelhető, a váltó (hozzá a fémgyök), sorompó
@@ -19,8 +20,9 @@
  *   - a középső kör bekerül a 4 váltóval, gyökökkel, mellékág lekapcsolható, piros LED jelzi, ha nincs áram alatt
  *
  * Harmadik kör:
- *   - fölső ág (2. PWM), 2 váltó, fönti
+ *   - fölső ág (2. PWM), 2 váltó, fönti (ez már Nano boarddal nem megy)
  */
+
 
 ChangeTask pending_track_tasks[NUM_OF_TRACKS];
 ChangeTask pending_servo_tasks[NUM_OF_SERVOS];
@@ -98,7 +100,7 @@ void parseInput() {
     } else if (command == "li") {
         printList();
     } else {
-        Serial.print("ERR:Not recognized command: ");
+        Serial.print(F("ERR:Not recognized command: "));
         Serial.println(command);
     }
     Serial.readStringUntil('\n');

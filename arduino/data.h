@@ -47,7 +47,7 @@ ServoData servoData[NUM_OF_SERVOS] = {
 
 };
 
-TrackData trackData[NUM_OF_TRACKS] = { (TrackData ) { 11, 10, 9, 0 } };
+TrackData trackData[NUM_OF_TRACKS] = { (TrackData ) { 11, 10, 9, 0 } }; // PWM: pin#11, forward: PIN#10, backward: PIN#9, initial speed: 0
 
 volatile int voltage_track1 = 0;
 volatile int voltage_track2 = 0;
