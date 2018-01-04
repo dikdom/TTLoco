@@ -176,5 +176,5 @@ void printInitScreen() {
     Serial.println(
             F("li:LF - lists all configured tracks, switches and servos"));
     Serial.println(
-            F("                   Have fun!           (sanyi - 2016-12-18 - 2017-02-24)"));
+            F("                   Have fun!           (sanyi - 2016-12-18 - 2018-01-04)"));
 }

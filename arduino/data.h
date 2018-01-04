@@ -40,10 +40,10 @@ Servo servos[NUM_OF_SERVOS];
 ServoData servoData[NUM_OF_SERVOS] = {
         (ServoData ) { { 180, 120 }, 0.02, 1, 6, NULL }, // Barrier
         (ServoData ) { { 10, 35 }, 0.03, 0,  8, &switchData[0] }, // Turnout #1, servopin:#8, frogPin:#7
-        (ServoData ) { { 10, 35 }, 0.03, 0,  4, &switchData[2] }, // Turnout #2, servopin:#4, frogPin:#A0
-        (ServoData ) { { 10, 35 }, 0.03, 0,  3, &switchData[3] }, // Turnout #3, servopin:#3, frogPin:#A1
-        (ServoData ) { { 10, 35 }, 0.03, 0,  2, &switchData[4] }, // Turnout #4, servopin:#2, frogPin:#A2
-        (ServoData ) { { 10, 35 }, 0.03, 0, 12, &switchData[5] }, // Turnout #5, servopin:#12, frogPin:#A3
+        (ServoData ) { { 100, 85 }, 0.03, 0,  4, &switchData[2] }, // Turnout #2, servopin:#4, frogPin:#A0
+        (ServoData ) { { 93, 99}, 0.03, 0,  3, &switchData[3] }, // Turnout #3, servopin:#3, frogPin:#A1
+        (ServoData ) { { 97, 90 }, 0.03, 0,  2, &switchData[4] }, // Turnout #4, servopin:#2, frogPin:#A2
+        (ServoData ) { { 90, 97 }, 0.03, 0, 12, &switchData[5] }, // Turnout #5, servopin:#12, frogPin:#A3
 
 };
 

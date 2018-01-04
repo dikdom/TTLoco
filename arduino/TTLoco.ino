@@ -5,6 +5,7 @@
 #include "data.h"
 #include "debug.h"
 #include "EEPROM.h"
+#include "LinkedList.h"
 
 
 /**
@@ -17,12 +18,15 @@
  *   LED: pin 5
  *
  * Második kör:
- *   - a középső kör bekerül a 4 váltóval, gyökökkel, mellékág lekapcsolható, piros LED jelzi, ha nincs áram alatt
+ *   - a) a középső kör bekerül a 4 váltóval, gyökökkel,
+ *   - b) mellékág lekapcsolható, piros LED jelzi, ha nincs áram alatt
  *
  * Harmadik kör:
  *   - fölső ág (2. PWM), 2 váltó, fönti (ez már Nano boarddal nem megy)
  */
 
+LinkedList<ChangeTask> pending_track_tasks_l;
+LinkedList<ChangeTask> pending_servo_tasks_l;
 
 ChangeTask pending_track_tasks[NUM_OF_TRACKS];
 ChangeTask pending_servo_tasks[NUM_OF_SERVOS];
@@ -258,6 +262,32 @@ void processOngoingTrackSpeedChange(ChangeTask &task, unsigned long currentTime)
     }
 }
 
+void processOngoingTasksFromList() {
+    unsigned long currentTime = 0;
+    currentTime = millis();
+    boolean processing = false;
+    for (byte b = 0; b < pending_track_tasks_l.size(); b++) {
+
+        if (!pending_track_tasks[b].finished) {
+            processOngoingTrackSpeedChange(pending_track_tasks[b], currentTime);
+            processing = true;
+        }
+    }
+
+    for (byte b = 0; b < NUM_OF_SERVOS; b++) {
+        if (!pending_servo_tasks[b].finished) {
+            processOngoingServoChange(pending_servo_tasks[b], currentTime);
+            processing = true;
+        } else if(pending_servo_tasks[b].change_speed!=0.0 && currentTime - pending_servo_tasks[b].timeStamp > 200) {
+            servos[b].detach();
+            pending_servo_tasks[b].change_speed = 0.0;
+            processing = true;
+//            TIMSK2 = _BV(TOIE2);
+        }
+    }
+    blinkDelay = processing ? 200 : 1000;
+}
+
 void processOngoingTasks() {
     unsigned long currentTime = 0;
     currentTime = millis();
@@ -286,6 +316,7 @@ void processOngoingTasks() {
 volatile byte isrcounter = 0;
 volatile long isrMicros = 0;
 
+// timer2 middle point, check for short circuit on tracks
 ISR(TIMER2_OVF_vect) {
     interrupts();
     voltage_track1 = analogRead(SENSEPIN_TRACK1);
@@ -395,6 +426,7 @@ void checkForShortCircuit() {
     int track2 = 0;
     int maxTrack1 = 0;
     int maxTrack2 = 0;
+    // a current sensing interrupt could corrupt the value of voltage_trackx
     noInterrupts();
     track1 = voltage_track1;
     track2 = voltage_track2;
