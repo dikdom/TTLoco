@@ -20,6 +20,7 @@
 #define PWM_LIMIT_HIGH 13.0/16.5*255  // max PWM value at 16.5V (-> 13V, cheating...)
 #define MIN_SPEED  3 // -min - +min value on the slider the train is stopped!
 #define MAX_SPEED 100 // maximum value on the slider
+#define MAX_PARALLEL_SERVO_TASKS 3
 #define EEPROM_SERVO_OFFSET 4
 #define EEPROM_SWITCH_OFFSET EEPROM_SERVO_OFFSET+NUM_OF_SERVOS
 #define SENSEPIN_TRACK1 A6
@@ -38,10 +39,10 @@ SwitchData switchData[NUM_OF_SWITCHES] = {
 
 Servo servos[NUM_OF_SERVOS];
 ServoData servoData[NUM_OF_SERVOS] = {
-        (ServoData ) { { 180, 120 }, 0.02, 1, 6, NULL }, // Barrier
+        (ServoData ) { { 180, 120 }, 0.02, 0, 6, NULL }, // Barrier
         (ServoData ) { { 10, 35 }, 0.03, 0,  8, &switchData[0] }, // Turnout #1, servopin:#8, frogPin:#7
         (ServoData ) { { 100, 85 }, 0.03, 0,  4, &switchData[2] }, // Turnout #2, servopin:#4, frogPin:#A0
-        (ServoData ) { { 93, 99}, 0.03, 0,  3, &switchData[3] }, // Turnout #3, servopin:#3, frogPin:#A1
+        (ServoData ) { { 93, 99}, 0.03, 1,  3, &switchData[3] }, // Turnout #3, servopin:#3, frogPin:#A1
         (ServoData ) { { 97, 90 }, 0.03, 0,  2, &switchData[4] }, // Turnout #4, servopin:#2, frogPin:#A2
         (ServoData ) { { 90, 97 }, 0.03, 0, 12, &switchData[5] }, // Turnout #5, servopin:#12, frogPin:#A3
 

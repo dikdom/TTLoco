@@ -32,6 +32,9 @@ ChangeTask pending_track_tasks[NUM_OF_TRACKS];
 ChangeTask pending_servo_tasks[NUM_OF_SERVOS];
 unsigned int blinkDelay = 1000;
 
+int processServoTaskSize = 0;
+int processServoTasks[NUM_OF_SERVOS];
+
 /**
  * commands:
  *   tr: <track_num> <speed>
@@ -49,6 +52,15 @@ int scaleTrackSpeed(int slider_value) {
     return map(slider_value, -MAX_SPEED, MAX_SPEED, -PWM_LIMIT_HIGH, PWM_LIMIT_HIGH);
 }
 
+void insertServoTaskIntoQueue(int servoTaskIdx) {
+    for(int i = 0; i<processServoTaskSize; i++) {
+        if(processServoTasks[i]==servoTaskIdx) {
+            return ;
+        }
+    }
+    processServoTasks[processServoTaskSize++] = servoTaskIdx;
+}
+
 void initiateServoChange(int index) {
     ServoData* sd = &servoData[index];
     float speed = sd->switching_speed;
@@ -63,6 +75,7 @@ void initiateServoChange(int index) {
     sd->servo_state = 1 - sd->servo_state;
     //        TIMSK2 = 0;
     servos[index].attach(sd->servoPin);
+    insertServoTaskIntoQueue(index);
 }
 
 void parseInput() {
@@ -262,30 +275,12 @@ void processOngoingTrackSpeedChange(ChangeTask &task, unsigned long currentTime)
     }
 }
 
-void processOngoingTasksFromList() {
-    unsigned long currentTime = 0;
-    currentTime = millis();
-    boolean processing = false;
-    for (byte b = 0; b < pending_track_tasks_l.size(); b++) {
-
-        if (!pending_track_tasks[b].finished) {
-            processOngoingTrackSpeedChange(pending_track_tasks[b], currentTime);
-            processing = true;
-        }
+void removeServoTaskFromQueue(byte idx) {
+    while(idx < processServoTaskSize+1) {
+        processServoTasks[idx] = processServoTasks[idx+1];
+        idx++;
     }
-
-    for (byte b = 0; b < NUM_OF_SERVOS; b++) {
-        if (!pending_servo_tasks[b].finished) {
-            processOngoingServoChange(pending_servo_tasks[b], currentTime);
-            processing = true;
-        } else if(pending_servo_tasks[b].change_speed!=0.0 && currentTime - pending_servo_tasks[b].timeStamp > 200) {
-            servos[b].detach();
-            pending_servo_tasks[b].change_speed = 0.0;
-            processing = true;
-//            TIMSK2 = _BV(TOIE2);
-        }
-    }
-    blinkDelay = processing ? 200 : 1000;
+    processServoTaskSize--;
 }
 
 void processOngoingTasks() {
@@ -299,6 +294,24 @@ void processOngoingTasks() {
         }
     }
 
+    byte b = 0;
+    while(b < processServoTaskSize && b<MAX_PARALLEL_SERVO_TASKS) {
+        byte idx = processServoTasks[b];
+        if (!pending_servo_tasks[idx].finished) {
+            processOngoingServoChange(pending_servo_tasks[idx], currentTime);
+            processing = true;
+            b++;
+        } else if(pending_servo_tasks[idx].change_speed!=0.0 && currentTime - pending_servo_tasks[idx].timeStamp > 200) {
+            servos[idx].detach();
+            pending_servo_tasks[idx].change_speed = 0.0;
+            processing = true;
+            removeServoTaskFromQueue(b);
+//            TIMSK2 = _BV(TOIE2);
+        } else {
+            b++;
+        }
+    }
+/*
     for (byte b = 0; b < NUM_OF_SERVOS; b++) {
         if (!pending_servo_tasks[b].finished) {
             processOngoingServoChange(pending_servo_tasks[b], currentTime);
@@ -310,6 +323,7 @@ void processOngoingTasks() {
 //            TIMSK2 = _BV(TOIE2);
         }
     }
+*/
     blinkDelay = processing ? 200 : 1000;
 }
 
